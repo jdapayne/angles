@@ -1,0 +1,19 @@
+{
+  "name": "angles",
+  "version": "1.0.0",
+  "description": "Angle question generator",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jdapayne/angles.git"
+  },
+  "author": "Jonathan Payne",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jdapayne/angles/issues"
+  },
+  "homepage": "https://github.com/jdapayne/angles#readme"
+}
