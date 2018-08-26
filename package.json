@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/jdapayne/angles/issues"
   },
-  "homepage": "https://github.com/jdapayne/angles#readme"
+  "homepage": "https://github.com/jdapayne/angles#readme",
+  "devDependencies": {
+    "css-loader": "^1.0.0",
+    "style-loader": "^0.22.1",
+    "webpack-command": "^0.4.1",
+    "webpack": "^4.17.1"
+  }
 }

@@ -10,13 +10,13 @@ export default class Triangle extends AnglesForming {
     }
 
     static random() {
-        let triangle = super.random(180,3);
+        let triangle = super.random(180,3,20);
         triangle.type = "triangle";
         return triangle;
     }
 
     static randomrep() {
-        let triangle = super.randomrep(180,3,2);
+        let triangle = super.randomrep(180,3,2,20);
         triangle.missing = [false,false,false];
         triangle.missing[randBetween(0,2)] = true;
         triangle.type = "triangle";
