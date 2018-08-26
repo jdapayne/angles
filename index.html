@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Angle generator</title>
+</head>
+
+<body>
+<form>
+<header>
+    <div><a id="showoptions" href="#">Hide options</a></div>
+    <div id="options">
+        <div class="options-row">
+            <div class="options-part">
+                <h2> Types: </h2>
+                <ul class="options-list">
+                    <li><label><input type="checkbox" id="aosl" class="type" checked/>Angles on a straight line</label></li>
+                    <li><label><input type="checkbox" id="aaap" class="type" />Angles around a point</label></li>
+                    <li><label><input type="checkbox" id="voa" class="type" disabled/>Vertically opposite angles</label></li>
+                    <li><label><input type="checkbox" id="triangle" class="type"/>Angles in a triangle</label></li>
+                    <li><label><input type="checkbox" id="aiaq" disabled/>Angles in a quadrilateral</label></li>
+                </ul>
+            </div>
+            <div class="options-part">
+                <h2> Options: </h2>
+                <ul class="options-list">
+                    <li><label><input type="checkbox" id="simple" class="subtype" checked/>Simple</label></li>
+                    <li><label><input type="checkbox" id="repeated" class="subtype" />Repeated angles</label></li>
+                    <li><label><input type="checkbox" id="algebra" class="subtype" />Algebraic</label></li>
+                    <li><label><input type="checkbox" id="worded" class="subtype"/>Worded</label>
+                        <ul>
+                            <li><label><input type="checkbox" id="worded-percent" class="subtype"/>Include percentages</label></li>
+                            <li><label><input type="checkbox" id="worded-ratio" class="subtype"/>Include ratios</label></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="options-row">
+            <div class="options-part">
+                Number of questions:<input type="text" id="n-questions" value="10">
+            </div>
+        </div>
+    </div>
+    <div id="action-buttons">
+        <button id="generate" type=submit>Generate questions</button>
+        <button id="show-answers" disabled>Show answers</button>
+    </div>
+</header>
+</form>
+
+<div id="modal-overlay">
+    <div class="modal">
+        <h1> Angles on a straight line <input type="checkbox"></h1>
+        <ul>
+            <li><label>Simple <input type="checkbox"></label>
+                <ul>
+                    <li><input type="text">&leq;Number of angles&leq;<input type="text"></li>
+                    <li><input type="text">&leq;Number of angles&leq;<input type="text"></li>
+                </ul>
+            <li><label>Simple <input type="checkbox"></label>
+                <ul>
+                    <li><input type="text">&leq;Number of angles&leq;<input type="text"></li>
+                    <li><input type="text">&leq;Number of angles&leq;<input type="text"></li>
+                </ul>
+            <li><label>Simple <input type="checkbox"></label>
+                <ul>
+                    <li><input type="text">&leq;Number of angles&leq;<input type="text"></li>
+                    <li><input type="text">&leq;Number of angles&leq;<input type="text"></li>
+                </ul>
+        </ul>
+    </div>
+</div>
+
+<div id="display-box"></div>
+
+<!-- Full source code available at https://github.com/jdapayne/jdapayne.github.io/tree/master/angles -->
+<script src="main.js"></script>
+
+</body>
+</html>
