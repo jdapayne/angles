@@ -80,6 +80,10 @@ header {
     font-size: smaller
 }
 
+#options-advanced {
+    display: none
+}
+
 #action-buttons {
     text-align: center
 }

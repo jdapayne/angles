@@ -17,6 +17,8 @@ export default function App () {}
 
 /* Initialisation: Sets up click handlers etc */
 App.init = function () {
+    App.getSettings();
+
     document.getElementById("generate").addEventListener("click", function(e) {
         e.preventDefault();
         App.generateAll();
@@ -37,7 +39,9 @@ App.init = function () {
         }
     });
 
-    document.getElementById("show-answers").addEventListener("click",App.toggleAllAnswers)
+    document.getElementById("show-answers").addEventListener("click",App.toggleAllAnswers);
+
+    document.getElementById("options").addEventListener("change",App.getSettings);
 };
 /* * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -103,97 +107,168 @@ App.answered = false;
 /* * * * * * * * * * * * * * * * * * * * * * * */
 
 /* * * Question selection/object creation * * */
-App.chooseQuestion = function () {
-    let selected_types = document.querySelectorAll(".type:checked");
-    let diceroll = randBetween(0,selected_types.length-1);
-    let type = selected_types[diceroll].id;
-    switch(type) {
-        case "aaap":
-            return App.chooseAnglesForming(360);
-        case "triangle":
-            return App.chooseTriangle();
-        case "aosl":
+App.chooseQDifficulty = function (difficulty) {
+    // choose question at random - given type options, with given difficulty.
+    // Aim - avoid and DOM interaction with these.
+    const type = App.randomType();
+    switch(difficulty) {
+        case 1:
+            return App.chooseQ(type,"simple",{n: 2});
+        case 2:
+            return App.chooseQ(type,"simple",{n: 3});
+        case 3:
+            return App.chooseQ(type,"repeated", {n:3});
+        case 4:
+            return App.chooseQ(type,"algebra", {types: ['mult'], constants: false, ensure_x: false, min_n:3, max_n: 6});
         default:
-            return App.chooseAnglesForming(180);
+            return App.chooseQ(type,"simple",{n: 2});
+            // code
     }
-};
-
-App.chooseAnglesForming = function (anglesum) {
-    let selected_subtypes = document.querySelectorAll(".subtype:checked");
-    if (selected_subtypes.length === 0) throw "no_subtype";
-    let diceroll = randBetween(0,selected_subtypes.length-1);
-    let subtype = selected_subtypes[diceroll].id;
-    let question;
-    switch(subtype) {
-        case "simple":{
-            let n = randBetween(2,4);
-            question = AnglesForming.random(anglesum,n);
-            break;
-        }
-        case "repeated":{
-            if (Math.random() < 0.15) {
-                let n = randBetween(2,5);
-                question = AnglesForming.randomrep(anglesum,n,n);
-            } else {
-                let n = randBetween(3,4);
-                let m = randBetween(2,n-1);
-                question = AnglesForming.randomrep(anglesum,n,m);
-            }
-            break;
-        }
-        case "algebra":{
-            let n = randBetween(2,3);
-            question = AnglesFormingAlgebraic.random(anglesum,n);
-            break;
-        }
-        case "worded":{
-            let n = randBetween(2,3)
-            question = AnglesFormingWorded.random(anglesum,n);
-            break;
-        }
-        default:{
-            throw new Error("This shouldn't happen!!")
-        }
-    }
-    return question;
-};
-
-App.chooseTriangle = function () {
-    return Triangle.random();
 }
 
-App.makeView = function (question) {
-    // at some point, this needs to branch with different types as well
-    let view;
-    switch (question.type) {
-    	case "anglesforming":
-        case "aosl":
-        case "aaap":
-            switch (question.subtype) {
-                case "simple":
-                case "repeated":
-                    view = new AnglesFormingView(question,App.defaults.radius,App.defaults.canvas_width,App.defaults.canvas_height);
-                    break;
-                case "algebra":
-                    view = new AnglesFormingViewAlgebraic(question,App.defaults.radius,App.defaults.canvas_width,App.defaults.canvas_height);
-                    break;
-                case "worded":
-                    view = new AnglesFormingViewWorded(question,App.defaults.radius,App.defaults.canvas_width,App.defaults.canvas_height);
-                    break;
+App.chooseQRandom = function () {
+    // choose based on options for type and subtupes available
+    const type = App.randomType();
+    const subtype = App.randomSubType();
+    return App.chooseQ(type,subtype);
+}
+
+App.chooseQ = function (type, subtype, options) {
+    switch(type) {
+        case 'aosl':
+        case 'aaap':
+            let anglesum = type === 'aosl' ? 180 : 360;
+            switch(subtype) {
+                case 'simple':
+                    return AnglesForming.random(anglesum,options);
+                case 'repeated':
+                    return AnglesForming.randomrep(anglesum,options);
+                case 'algebra':
+                    return AnglesFormingAlgebraic.random2(anglesum,options);
+                case 'worded':
+                    return AnglesFormingWorded.random(anglesum,options);
                 default:
-                    throw new Error("No appropriate subtype of question");
+                    throw "no_subtype";
             }
-            break;
-        case "triangle":
-            view = new TriangleView(question,App.defaults.radius,App.defaults.canvas_width,App.defaults.canvas_height);
-            break;
+        case 'triangle':
+            switch(subtype) {
+                case 'simple':
+                    return Triangle.random(options);
+                case 'repeated':
+                    return Triangle.randomrep(options);
+                case 'algebra':
+                case 'worded':
+                default:
+                    throw "no_subtype";
+            }
         default:
             throw "no_type";
     }
-    return view;
-};
-/* * * * * * * * * * * * * * * * * * * * */
+}
 
+App.randomType = function () {
+    const diceroll = randBetween(0,App.settings.types.length - 1);
+    const type = App.settings.types[diceroll];
+    return type;
+}
+
+App.randomSubType = function () {
+    const diceroll = randBetween(0,App.settings.subtypes.length - 1);
+    const subtype = App.settings.subtypes[diceroll];
+    return subtype;
+}
+
+/* To be replaced */
+/**/ App.chooseQuestion = function () {
+/**/     let selected_types = document.querySelectorAll(".type:checked");
+/**/     let diceroll = randBetween(0,selected_types.length-1);
+/**/     let type = selected_types[diceroll].id;
+/**/     switch(type) {
+/**/         case "aaap":
+/**/             return App.chooseAnglesForming(360);
+/**/         case "triangle":
+/**/             return App.chooseTriangle();
+/**/         case "aosl":
+/**/         default:
+/**/             return App.chooseAnglesForming(180);
+/**/     }
+/**/ };
+/**/ 
+/**/ App.chooseAnglesForming = function (anglesum) {
+/**/     let selected_subtypes = document.querySelectorAll(".subtype:checked");
+/**/     if (selected_subtypes.length === 0) throw "no_subtype";
+/**/     let diceroll = randBetween(0,selected_subtypes.length-1);
+/**/     let subtype = selected_subtypes[diceroll].id;
+/**/     let question;
+/**/     switch(subtype) {
+/**/         case "simple":{
+/**/             let n = randBetween(2,4);
+/**/             question = AnglesForming.random(anglesum,n);
+/**/             break;
+/**/         }
+/**/         case "repeated":{
+/**/             if (Math.random() < 0.15) {
+/**/                 let n = randBetween(2,5);
+/**/                 question = AnglesForming.randomrep(anglesum,n,n);
+/**/             } else {
+/**/                 let n = randBetween(3,4);
+/**/                 let m = randBetween(2,n-1);
+/**/                 question = AnglesForming.randomrep(anglesum,n,m);
+/**/             }
+/**/             break;
+/**/         }
+/**/         case "algebra":{
+/**/             let n = randBetween(2,3);
+/**/             question = AnglesFormingAlgebraic.random(anglesum,n);
+/**/             break;
+/**/         }
+/**/         case "worded":{
+/**/             let n = randBetween(2,3)
+/**/             question = AnglesFormingWorded.random(anglesum,n);
+/**/             break;
+/**/         }
+/**/         default:{
+/**/             throw new Error("This shouldn't happen!!")
+/**/         }
+/**/     }
+/**/     return question;
+/**/ };
+/**/ 
+/**/ App.chooseTriangle = function () {
+/**/     return Triangle.random();
+/**/ }
+/**/ 
+/**/ App.makeView = function (question) {
+/**/     // at some point, this needs to branch with different types as well
+/**/     let view;
+/**/     switch (question.type) {
+/**/     	case "anglesforming":
+/**/         case "aosl":
+/**/         case "aaap":
+/**/             switch (question.subtype) {
+/**/                 case "simple":
+/**/                 case "repeated":
+/**/                     view = new AnglesFormingView(question,App.defaults.radius,App.defaults.canvas_width,App.defaults.canvas_height);
+/**/                     break;
+/**/                 case "algebra":
+/**/                     view = new AnglesFormingViewAlgebraic(question,App.defaults.radius,App.defaults.canvas_width,App.defaults.canvas_height);
+/**/                     break;
+/**/                 case "worded":
+/**/                     view = new AnglesFormingViewWorded(question,App.defaults.radius,App.defaults.canvas_width,App.defaults.canvas_height);
+/**/                     break;
+/**/                 default:
+/**/                     throw new Error("No appropriate subtype of question");
+/**/             }
+/**/             break;
+/**/         case "triangle":
+/**/             view = new TriangleView(question,App.defaults.radius,App.defaults.canvas_width,App.defaults.canvas_height);
+/**/             break;
+/**/         default:
+/**/             throw "no_type";
+/**/     }
+/**/     return view;
+/**/ };
+/* * * * * * * * * * * * * * * * * * * * */
 
 /* * * Question drawing control * * */
 App.clear = function () {
@@ -221,7 +296,16 @@ App.drawAll = function () {
 
 App.generate = function (i) {
     // Generates a question and represents it at the given index
-    let question = App.chooseQuestion();
+    let question;
+    if (App.settings.options_mode === 'basic') {
+        let difffloat = App.settings.mindiff + i * (App.settings.maxdiff - App.settings.mindiff + 1)/App.settings.nquestions 
+        let diff = Math.floor(difffloat); 
+        console.log("difficulty for " + i + " : " + difffloat + " -> " + diff);
+        question = App.chooseQDifficulty(diff);
+    } else {
+        question = App.chooseQRandom() 
+    }
+
     let view = App.makeView(question);
     
     App.questions[i] = Object.assign({},App.questions[i], {
@@ -273,7 +357,6 @@ App.generateAll = function () {
 };
 /* * * * * * * * * * * * * * * * * * * * */
 
-
 /* * * Data on generated questions * * */
 /********************************************************************************************************
  * Example:
@@ -294,39 +377,23 @@ App.defaults = {
 };
 
 App.settings = {
-	canvas_width: 250,
+    canvas_width: 250,
     canvas_height: 250,
-    radius: 100,
     types: [],
     subtypes: [],
-    anglesforming: {
-    	min_n: 2,
-        max_n: 4,
-        simple: {
-        },
-        repeated: {
-            min_missing: 2,
-            max_missing: 4
-        },
-        algebraic: {
-        	min_coeff: 1,
-            max_coeff: 10,
-            min_const: -30,
-            max_const: 30,
-            multiple_of: 1
-        },
-        worded: {
-        	subsubtypes: [
-                    "simple",
-                    "percent",
-                    "ratio"
-                ]
-        }
-    }
+    min_n: 2,
+    max_n: 4,
+    options_mode: "basic"
 }
    
-App.settingsToPage = function() {
-	// update form elements on page with settings object
+App.getSettings = function() {
+    // update form elements on page with settings object
+    App.settings.types = Array.from(document.querySelectorAll(".type:checked")).map(x=>x.id);
+    App.settings.subtypes = Array.from(document.querySelectorAll(".subtype:checked")).map(x=>x.id);
+    App.settings.mindiff = parseInt(document.getElementById("mindiff").value);
+    App.settings.maxdiff = parseInt(document.getElementById("maxdiff").value);
+    App.settings.nquestions = parseInt(document.getElementById("n-questions").value);
+    console.log("settings updated:");
+    console.log(App.settings);
+    return App.settings;
 }
-        
-            

@@ -17,14 +17,12 @@
                 <ul class="options-list">
                     <li><label><input type="checkbox" id="aosl" class="type" checked/>Angles on a straight line</label></li>
                     <li><label><input type="checkbox" id="aaap" class="type" />Angles around a point</label></li>
-                    <li><label><input type="checkbox" id="voa" class="type" disabled/>Vertically opposite angles</label></li>
                     <li><label><input type="checkbox" id="triangle" class="type"/>Angles in a triangle</label></li>
-                    <li><label><input type="checkbox" id="aiaq" disabled/>Angles in a quadrilateral</label></li>
                 </ul>
             </div>
             <div class="options-part">
                 <h2> Options: </h2>
-                <ul class="options-list">
+                <ul class="options-list" id="options-advanced">
                     <li><label><input type="checkbox" id="simple" class="subtype" checked/>Simple</label></li>
                     <li><label><input type="checkbox" id="repeated" class="subtype" />Repeated angles</label></li>
                     <li><label><input type="checkbox" id="algebra" class="subtype" />Algebraic</label></li>
@@ -34,6 +32,10 @@
                             <li><label><input type="checkbox" id="worded-ratio" class="subtype"/>Include ratios</label></li>
                         </ul>
                     </li>
+                </ul>
+                <ul class="options-list" id="options-simple">
+                    <li>Lowest difficulty: <input type="text" id="mindiff" value="1"/></li>
+                    <li>Highest difficulty: <input type="text" id="maxdiff" value="10"/></li>
                 </ul>
             </div>
         </div>

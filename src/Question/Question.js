@@ -4,7 +4,7 @@
  *       this.type;
  *       this.subtype;
  *    }
- *    random([n], options) {
+ *    random(options) {
  * 	  return new Question ();
  *    }
  *  

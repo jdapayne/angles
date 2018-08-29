@@ -9,7 +9,7 @@ export default class AnglesFormingWorded extends AnglesFormingAlgebraic{
         this.subtype="worded";
     }
 
-    static random(anglesum, n, options) {
+    static random(anglesum, options) {
         function comparator(number,operator) {
             switch (operator) {
                 case "*":
@@ -27,6 +27,7 @@ export default class AnglesFormingWorded extends AnglesFormingAlgebraic{
         }
 
         const defaults = {
+            n: 2,
             min_angle: 10,
             min_addend: -90,
             max_addend: 90,
@@ -36,6 +37,7 @@ export default class AnglesFormingWorded extends AnglesFormingAlgebraic{
         }
 
         const settings = Object.assign({},defaults,options);
+        const n = settings.n;
         
         // For now: just do it with two.
         let expressions = [new LinExpr(1,0)];

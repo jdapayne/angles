@@ -15,9 +15,14 @@ export default class AnglesForming {
         this.subtype = "simple";
     }
 
-    static random(anglesum,n,minangle) {
+    static random(anglesum,options) {
+        if (!options) options = {}
+        const n = options.n? 
+            options.n : 3;
+        const minangle = options.minangle? 
+            options.minangle : 10;
+
         if (n < 2) return null;
-        if (minangle === undefined) minangle = 10;
 
         let angles = [];
         let left = anglesum;
@@ -36,11 +41,19 @@ export default class AnglesForming {
         return new AnglesForming(anglesum,angles,missing);
     }
 
-    static randomrep(anglesum,n,m,minangle) {
+    static randomrep(anglesum,options) {
         // n: number of angle
         // m: number of repeated angles (must be <= n)
+        if (!options) options = {};
+        
+        const n = options.n? 
+            options.n : randBetween(3,4);
+        const m = options.nmissing?
+            options.nmissing : randBetween(2,n);
+        const minangle = options.minangle? 
+            options.minangle : 10;
+
         if (n < 2 || m < 1 || m > n) throw "invalid arguments";
-        if (minangle === undefined) minangle = 10;
 
         // All missing - do as a separate case
         if (n === m) {
