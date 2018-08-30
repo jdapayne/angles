@@ -96,6 +96,18 @@ label {
     display: none !important
 }
 
+/* Zoom buttons */
+#zoom {
+    position: absolute;
+    top: 1em;
+    right: 2em;
+}
+
+#zoom span {
+    font-size: large;
+    cursor: pointer
+}
+
 /* Modal dialog */
 
 #modal-overlay {

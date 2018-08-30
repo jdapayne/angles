@@ -1,12 +1,12 @@
-import AnglesFormingView from 'QuestionView/AnglesFormingView';
+import TriangleView from 'QuestionView/TriangleView';
 import Point from 'Utilities/Point';
 import {roundDP} from 'Utilities/Utilities';
 
-export default class AnglesFormingViewWorded extends AnglesFormingView{
-    constructor(question, width, height, rotation) {
-        super(question, width, height, rotation);
+export default class TriangleViewAlgebraic extends TriangleView {
+    constructor(question, width, height,rotation) {
+        super(question, width, height,rotation);
 
-        super.translate(0,-15);
+        super.translate(0,-10);
 
         this.labels.forEach(function(l,i) {
             l.text = String.fromCharCode(65+i);

@@ -1,6 +1,18 @@
-export function randBetween(n,m) {
+/* RNGs / selectors */
+function gaussian(n) {
+    let rnum = 0;
+    for (let i = 0; i<n; i++) {
+        rnum += Math.random();
+    }
+    return rnum/n;
+}
+
+export function randBetween(n,m,dist) {
     // return a random integer between n and m inclusive
-    return n+Math.floor(Math.random()*(m-n+1));
+    // dist (optional) is a function returning a value in [0,1)
+    // default is slightly biased towards middle
+    if (!dist) dist = function () {return gaussian(2)};
+    return n+Math.floor(dist()*(m-n+1));
 }
 
 export function randMultBetween(min,max,n) {
@@ -11,32 +23,12 @@ export function randMultBetween(min,max,n) {
     return randBetween(min/n,max/n)*n
 }
 
-export function randWithProbMass(min,max,p,check) {
-    // for n with min<n<max, retun n with probability p(n)
-    // if check is true, check first that the probability mass function sums to 1
-    if (check) {
-        let sum = 0;
-        for (let i = min; i <= max; i++) {
-            sum += p(i);
-            debugger;
-        }
-        if (Math.round(sum*1000000) !== 1000000) return null;
-    }
-    let cf = 0;
-    const diceroll = Math.random();
-    for (let i = min; i <= max; i++) {
-        cf += p(i);
-        if (diceroll <= cf) return i;
-        debugger;
-    }
-    return max;
-}
-
-export function randElem(array) {
-    let i = randBetween(0,array.length - 1);
+export function randElem(array,dist) {
+    let i = randBetween(0,array.length - 1,dist);
     return array[i];
 }
 
+/* Maths */
 export function roundToTen (n) {
     return Math.round(n/10)*10;
 }
@@ -55,6 +47,28 @@ export function sinDeg(x) {
 
 export function cosDeg(x) {
     return Math.cos(x*Math.PI/180);
+}
+
+/* Arrays */
+export function sortTogether(arr0, arr1,f) {
+    if (arr0.length !== arr0.length) {
+        throw new TypeError ("Both arguments must be arrays of the same length");
+    }
+
+    const n = arr0.length;
+    let combined = [];
+    for (let i=0; i<n; i++) {
+        combined[i] = [arr0[i],arr1[i]];
+    }
+
+    combined.sort( (x,y) => f(x[0],y[0]) );
+    
+    for (let i=0; i<n; i++) {
+        arr0[i] = combined[i][0];
+        arr1[i] = combined[i][1];
+    }
+
+    return [arr0,arr1];
 }
 
 export function shuffle(array) {
@@ -78,3 +92,40 @@ export function shuffle(array) {
   
     return array;
 }
+
+export function weakIncludes(a,e) {
+    return (Array.isArray(a) && a.includes(e))
+}
+
+export function firstUniqueIndex(array) {
+    // returns index of first unique element
+    // if none, returns length of array
+    let i=0;
+    while (i<array.length) {
+        if (array.indexOf(array[i]) === array.lastIndexOf(array[i])) {
+            break;
+        }
+        i++;
+    }
+    return i;
+}
+
+/* Canvas drawing */
+export function dashedLine(ctx,x1,y1,x2,y2) {
+    const length = Math.hypot(x2-x1,y2-y1);
+    const dashx = (y1-y2)/length; // unit vector perpendicular to line
+    const dashy = (x2-x1)/length;
+    const midx = (x1+x2)/2;
+    const midy = (y1+y2)/2;
+
+    // draw the base line
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+
+    // draw the dash
+    ctx.moveTo(midx+5*dashx,midy+5*dashy);
+    ctx.lineTo(midx-5*dashx,midy-5*dashy);
+
+    ctx.moveTo(x2,y2);
+}
+

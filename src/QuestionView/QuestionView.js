@@ -1,10 +1,11 @@
 import Point from 'Utilities/Point';
 
 export default class QuestionView {
-    constructor(question,radius,width,height) {
+    constructor(question,width,height,rotation) {
         this.question = question;
-        this.radius = radius;
         this.answered = false;
+        this.rotation = rotation;
+        this.unknown = "x°";
     }
 
 /* * * Abstract methods   * * */
@@ -15,13 +16,33 @@ export default class QuestionView {
 /**/                        /**/
 /**/  drawIn(canvas) {}     /**/
 /**/                        /**/
-/**/  showAnswer() {}       /**/
-/**/                        /**/
-/**/  hideAnswer() {}       /**/
-/**/                        /**/
-/**/  toggleAnswer() {}     /**/
-/**/                        /**/
 /* * * * * * * * * * * * * *  */
+    showAnswer() {
+        if (this.answered) return; //nothing to do
+        this.labels.forEach( (l,i) => {
+            if (this.question.missing[i]) {
+                l.text = this.question.angles[i].toString() + "°";
+                l.style = "answer";
+            }
+        });
+        return this.answered = true;
+    }
+
+    hideAnswer() {
+        if (!this.answered) return; //nothing to do
+        this.labels.forEach( (l,i) => {
+            if (this.question.missing[i]) {
+                l.text = this.unknown;
+                l.style = "normal";
+            }
+        });
+        return this.answered = false;
+    }
+
+    toggleAnswer() {
+        if (this.answered) return this.hideAnswer();
+        else return this.showAnswer();
+    }
 
     scale(sf) {
         this.allpoints.forEach(function(p){
@@ -33,6 +54,7 @@ export default class QuestionView {
         this.allpoints.forEach(function(p){
             p.rotate(angle)
         });
+        return angle;
     }
 
     translate(x,y) {

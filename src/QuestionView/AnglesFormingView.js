@@ -4,11 +4,12 @@ import Point from 'Utilities/Point';
 import {degToRad} from 'Utilities/Utilities';
 
 export default class AnglesFormingView extends QuestionView {
-    constructor(question,radius,width,height,norotate) {
+    constructor(question,width,height,rotation) {
         // question :: AnglesForming
         // radius :: Number 
-        
-        super(question,radius);
+
+        super(question,width,height,rotation);
+        const radius = this.radius = Math.min(width,height)/2.5;
         
         this.O = new Point(0,0);
         this.A = new Point(radius,0);
@@ -39,8 +40,7 @@ export default class AnglesFormingView extends QuestionView {
          *  hidden:: Boolean
          */
 
-        if (!norotate) this.rotation = this.randomRotate();
-        else this.rotation = 0;
+        this.rotation = (rotation !== undefined) ? this.rotate(rotation) : this.randomRotate();
 
         this.translate(width/2-this.O.x,height/2-this.O.y); //centre
     }
@@ -69,6 +69,7 @@ export default class AnglesFormingView extends QuestionView {
         ctx.stroke();
         ctx.closePath();
 
+        // why is this not working!? It was before
         ctx.beginPath();
         let totalangle = this.rotation;
         for (let i=0;i<this.question.angles.length;i++) {
@@ -93,30 +94,4 @@ export default class AnglesFormingView extends QuestionView {
         ctx.closePath();
     }
 
-    showAnswer() {
-        if (this.answered) return; //nothing to do
-        this.labels.forEach( (l,i) => {
-            if (this.question.missing[i]) {
-                l.text = this.question.angles[i].toString() + "°";
-                l.style = "answer";
-            }
-        });
-        return this.answered = true;
-    }
-
-    hideAnswer() {
-        if (!this.answered) return; //nothing to do
-        this.labels.forEach( (l,i) => {
-            if (this.question.missing[i]) {
-                l.text = "x°"
-                l.style = "normal";
-            }
-        });
-        return this.answered = false;
-    }
-
-    toggleAnswer() {
-        if (this.answered) return this.hideAnswer();
-        else return this.showAnswer();
-    }
 }

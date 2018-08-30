@@ -1,6 +1,6 @@
 import AnglesForming from 'Question/AnglesForming';
 import LinExpr from 'Utilities/LinExpr';
-import {randBetween, randMultBetween, randElem, shuffle} from 'Utilities/Utilities';
+import {randBetween, randMultBetween, randElem, shuffle, weakIncludes} from 'Utilities/Utilities';
 
 export default class AnglesFormingAlgebraic extends AnglesForming{
     constructor(anglesum,expressions) {
@@ -28,7 +28,7 @@ export default class AnglesFormingAlgebraic extends AnglesForming{
         this.subtype = "algebra";
     }
 
-    static random(anglesum,options) {
+    static randomold(anglesum,options) {
         // generates random
         const defaults = {
             min_x_coeff: 0,
@@ -76,7 +76,7 @@ export default class AnglesFormingAlgebraic extends AnglesForming{
         return new AnglesFormingAlgebraic(anglesum,expressions); 
     }
 
-    static random2(anglesum,options) {
+    static random(anglesum,options) {
         const defaults = {
             types: ["add", "mult", "mixed"],
                 // add: e.g. x, x+4, x-10
@@ -84,10 +84,13 @@ export default class AnglesFormingAlgebraic extends AnglesForming{
                 // mixed: e.g. x, 2x-10, 3x+40
             ensure_x: true, // makes one of the expressions x 
             constants: true, // have some angles be constants
+                // Either a boolean - in which case it covers all.
+                // Or an array of types for which to include constants
+            min_coeff: 1,
             max_coeff: 4,
             max_const: anglesum/2,
-            min_angle: 10,
-            min_x: 4,
+            min_angle: 15,
+            min_x: 15,
             max_x: anglesum/4,
             min_n: 2,
             max_n: 4
@@ -103,7 +106,6 @@ export default class AnglesFormingAlgebraic extends AnglesForming{
         }
 
         // if there is x and a constant, we need at least three angles, so override
-        if (n === 2 && settings.ensure_x && settings.constants) n = 3;
 
         const type = randElem(settings.types);
 
@@ -113,29 +115,52 @@ export default class AnglesFormingAlgebraic extends AnglesForming{
         let question;
 
         switch(type) {
+            case 'mixed': {
+                // TODO: take into account ensure_x and constants settings
+                const x = randBetween(settings.min_x,settings.max_x);
+                let left=anglesum;
+                let allconstant = true;
+                for (let i=0; i<n-1;i++) {
+                    let a = randBetween(1,settings.max_coeff);
+                    left -= a*x;
+                    let maxb = Math.min(left - settings.min_angle*(n-i-1),settings.max_const);
+                    let minb = settings.min_angle - a*x;
+                    let b = randBetween(minb,maxb);
+                    if (a !== 0) {allconstant = false};
+                    left -= b;
+                    expressions.push(new LinExpr(a,b));
+                }
+                let last_min_x_coeff = allconstant? 1 : settings.min_coeff;
+                let a = randBetween(last_min_x_coeff,settings.max_coeff);
+                let b = left-a*x;
+                expressions.push(new LinExpr(a,b));
+                break;
+            }
             case 'mult': {
                 // choose a total of coefficients
                 // pick x based on that
                 
+                const constants = (settings.constants === true || weakIncludes(settings.constants,'mult'));
+                if (n === 2 && settings.ensure_x && constants) n = 3;
+                
                 let anglesleft = n;
-                const total_coeff = settings.constants?
-                    randBetween(n,12) :
-                    randElem([3,4,5,6,8,9,10,12].filter(x => x >= n));
+                const total_coeff = constants?
+                    randBetween(n,(anglesum-settings.min_angle)/settings.min_angle,Math.random) : // if it's too big, angles get too small
+                    randElem([3,4,5,6,8,9,10].filter(x => x >= n),Math.random);
                 let coeffleft = total_coeff;
                 let left = anglesum;
 
                 // first 0/1/2
-                if (settings.constants) {
+                if (constants) {
                     // reduce to make what's left a multiple of total_coeff
                     anglesleft--;
-                    let newleft = randMultBetween(anglesleft*settings.min_angle, anglesum - settings.min_angle,total_coeff);
+                    let newleft = randMultBetween(total_coeff*settings.min_angle, anglesum - settings.min_angle,total_coeff);
                     let c = anglesum - newleft;
                     expressions.push(new LinExpr(0,c));
                     left -= newleft;
                 }
 
                 let x = left/total_coeff;
-                debugger; // check - x should be an integer!
 
                 if (settings.ensure_x) {
                     anglesleft--;
@@ -159,6 +184,9 @@ export default class AnglesFormingAlgebraic extends AnglesForming{
             }
             case 'add': 
             default: {
+                const constants = (settings.constants === true || weakIncludes(settings.constants,'add'));
+                if (n === 2 && settings.ensure_x && constants) n = 3;
+
                 const x = randBetween(settings.min_x, settings.max_x);
                 let left = anglesum;
                 let anglesleft = n;
@@ -171,7 +199,7 @@ export default class AnglesFormingAlgebraic extends AnglesForming{
                     left -= x;
                 }
 
-                if (settings.constants) {
+                if (constants){
                     anglesleft--;
                     let c = randBetween(
                         settings.min_angle,

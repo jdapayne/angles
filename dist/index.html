@@ -34,14 +34,40 @@
                     </li>
                 </ul>
                 <ul class="options-list" id="options-simple">
-                    <li>Lowest difficulty: <input type="text" id="mindiff" value="1"/></li>
-                    <li>Highest difficulty: <input type="text" id="maxdiff" value="10"/></li>
+                    <li>Lowest difficulty:
+                        <select id="mindiff">
+                            <option selected>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                            <option>10</option>
+                        </select>
+                    </li>
+                    <li>Highest difficulty:
+                        <select id="maxdiff">
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option selected>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                            <option>10</option>
+                        </select>
+                    </li>
                 </ul>
             </div>
         </div>
         <div class="options-row">
             <div class="options-part">
-                Number of questions:<input type="text" id="n-questions" value="10">
+                Number of questions:<input type="number" min="1" id="n-questions" value="10"/> 
             </div>
         </div>
     </div>
@@ -51,6 +77,10 @@
     </div>
 </header>
 </form>
+
+<div id="zoom">
+    Zoom: <span id="zoomin">+</span> / <span id="zoomout">-</span>
+</div>
 
 <div id="modal-overlay">
     <div class="modal">

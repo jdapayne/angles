@@ -1,10 +1,9 @@
-import AnglesFormingAlgebraic from 'Question/AnglesFormingAlgebraic';
-import AnglesFormingView from 'QuestionView/AnglesFormingView';
+import TriangleView from 'QuestionView/TriangleView';
 import Point from 'Utilities/Point';
 
-export default class AnglesFormingViewAlgebraic extends AnglesFormingView{
-    constructor(question, width, height, rotation) {
-        super(question, width, height, rotation);
+export default class TriangleViewAlgebraic extends TriangleView {
+    constructor(question, width, height,rotation) {
+        super(question, width, height,rotation);
 
         this.labels.forEach(function(l,idx) {
             l.text = question.expressions[idx].toStringP() + "°";

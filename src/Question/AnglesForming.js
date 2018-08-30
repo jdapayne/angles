@@ -16,11 +16,18 @@ export default class AnglesForming {
     }
 
     static random(anglesum,options) {
-        if (!options) options = {}
-        const n = options.n? 
-            options.n : 3;
-        const minangle = options.minangle? 
-            options.minangle : 10;
+        const defaults = {
+            min_angle: 10,
+            min_n: 2,
+            max_n: 4
+        }
+        const settings = Object.assign({},defaults,options);
+
+        const n = settings.n?
+            settings.n :
+            randBetween(settings.min_n, settings.max_n);
+
+        const minangle = settings.min_angle;
 
         if (n < 2) return null;
 
@@ -35,7 +42,8 @@ export default class AnglesForming {
         angles[n-1] = left;
 
         let missing = [];
-        missing.fill(false,0,n-1);
+        missing.length = n;
+        missing.fill(false);
         missing[randBetween(0,n-1)] = true;
 
         return new AnglesForming(anglesum,angles,missing);
@@ -44,14 +52,22 @@ export default class AnglesForming {
     static randomrep(anglesum,options) {
         // n: number of angle
         // m: number of repeated angles (must be <= n)
-        if (!options) options = {};
+        const defaults = {
+            min_angle: 10,
+            min_n: 3,
+            max_n: 4
+        }
+        const settings = Object.assign({},defaults,options);
         
-        const n = options.n? 
-            options.n : randBetween(3,4);
+        const n = settings.n?
+            settings.n :
+            randBetween(settings.min_n, settings.max_n);
+
         const m = options.nmissing?
-            options.nmissing : randBetween(2,n);
-        const minangle = options.minangle? 
-            options.minangle : 10;
+            options.nmissing :
+            Math.random() < 0.1 ? n : randBetween(2,n-1);
+
+        const minangle = settings.min_angle;
 
         if (n < 2 || m < 1 || m > n) throw "invalid arguments";
 
@@ -111,7 +127,9 @@ export default class AnglesForming {
             }
         }
         }
-        return new AnglesForming(anglesum,angles,missing);
+        const question = new AnglesForming(anglesum,angles,missing);
+        question.subtype = "repeated";
+        return question;
     }
 }
 
