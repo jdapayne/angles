@@ -11,7 +11,7 @@ import TriangleAlgebraic from 'Question/TriangleAlgebraic';
 import TriangleViewAlgebraic from 'QuestionView/TriangleViewAlgebraic';
 import TriangleWorded from 'Question/TriangleWorded';
 import TriangleViewWorded from 'QuestionView/TriangleViewWorded';
-import './style.css';
+//import './style.css';
 
 window.addEventListener("DOMContentLoaded", function () {
         App.init();
