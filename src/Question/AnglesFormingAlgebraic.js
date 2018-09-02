@@ -78,7 +78,7 @@ export default class AnglesFormingAlgebraic extends AnglesForming{
 
     static random(anglesum,options) {
         const defaults = {
-            types: ["add", "mult", "mixed"],
+            types: new Set(["add", "mult", "mixed"]),
                 // add: e.g. x, x+4, x-10
                 // mult: e.g. x, 3x, 2x
                 // mixed: e.g. x, 2x-10, 3x+40

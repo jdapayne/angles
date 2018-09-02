@@ -55,7 +55,9 @@ export default class AnglesForming {
         const defaults = {
             min_angle: 10,
             min_n: 3,
-            max_n: 4
+            max_n: 4,
+            min_missing: 2,
+            max_missing: Infinity
         }
         const settings = Object.assign({},defaults,options);
         
@@ -63,8 +65,8 @@ export default class AnglesForming {
             settings.n :
             randBetween(settings.min_n, settings.max_n);
 
-        const m = options.nmissing?
-            options.nmissing :
+        const m = settings.nmissing?
+            settings.nmissing :
             Math.random() < 0.1 ? n : randBetween(2,n-1);
 
         const minangle = settings.min_angle;

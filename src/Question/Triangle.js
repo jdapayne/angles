@@ -23,11 +23,11 @@ export default class Triangle extends AnglesForming {
     }
 
     static randomrep(options) { //isosceles
+        if (!options) options = {};
         options.n = 3;
         options.nmissing = 2;
         if (options.minangle === undefined) options.minangle = 20;
         if (options.iso_given === undefined) options.iso_given = Math.random()<0.5? 'base' : 'apex';
-
 
         let triangle = super.randomrep(180, options);
         triangle.type = "triangle";

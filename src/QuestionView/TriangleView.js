@@ -70,6 +70,7 @@ export default class TriangleView extends QuestionView {
                 ctx.lineTo(next.x,next.y)
             }
         }
+        ctx.strokeStyle = "gray";
         ctx.stroke();
         ctx.closePath();
 

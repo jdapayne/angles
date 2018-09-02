@@ -66,6 +66,7 @@ export default class AnglesFormingView extends QuestionView {
             ctx.moveTo(this.O.x,this.O.y);
             ctx.lineTo(this.C[i].x,this.C[i].y);
         }
+        ctx.strokeStyle = "gray";
         ctx.stroke();
         ctx.closePath();
 

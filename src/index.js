@@ -1,4 +1,4 @@
-import {randBetween} from 'Utilities/Utilities';
+import {randBetween, propByString, randElem} from 'Utilities/Utilities';
 import AnglesForming from 'Question/AnglesForming';
 import AnglesFormingView from 'QuestionView/AnglesFormingView';
 import AnglesFormingAlgebraic from 'Question/AnglesFormingAlgebraic';
@@ -21,7 +21,7 @@ export default function App () {}
 
 /* Initialisation: Sets up click handlers etc */
 App.init = function () {
-    App.getSettings();
+    App.settings.toPage();
 
     document.getElementById("generate").addEventListener("click", function(e) {
         e.preventDefault();
@@ -46,7 +46,12 @@ App.init = function () {
 
     document.getElementById("show-answers").addEventListener("click",App.toggleAllAnswers);
 
-    document.getElementById("options").addEventListener("change",App.getSettings);
+    document.addEventListener("change", function(e) {
+        App.settings.fromPage();
+        if (e.target.name === "options-type") {
+            App.toggleHidden(["options-advanced","options-simple"]);
+        }
+    });
 
     document.getElementById("zoom").addEventListener("click", function(e) {
         const elem = e.target;
@@ -55,6 +60,16 @@ App.init = function () {
         } else if (elem.id == 'zoomout') {
             App.zoom(-1); 
         }
+    });
+
+    document.body.addEventListener("click", function (event) {
+        const e = event.target;
+        if (e.dataset.modal) {App.modalOpen(e.dataset.modal); event.preventDefault()}
+    });
+
+    document.getElementById("modal-overlay").addEventListener("click", function (event) {
+        if (event.target.closest(".modal")) return;
+        else App.modalClose()
     });
 }
 /* * * * * * * * * * * * * * * * * * * * * * * */
@@ -159,7 +174,7 @@ App.chooseQRandom = function () {
     // choose based on options for type and subtupes available
     const type = App.randomType();
     const subtype = App.randomSubType();
-    return App.chooseQ(type,subtype);
+    return App.chooseQ(type,subtype,App.settings[subtype]);
 }
 
 App.chooseQ = function (type, subtype, options) {
@@ -198,15 +213,11 @@ App.chooseQ = function (type, subtype, options) {
 }
 
 App.randomType = function () {
-    const diceroll = randBetween(0,App.settings.types.length - 1);
-    const type = App.settings.types[diceroll];
-    return type;
+    return randElem(App.settings.types);
 }
 
 App.randomSubType = function () {
-    const diceroll = randBetween(0,App.settings.subtypes.length - 1);
-    const subtype = App.settings.subtypes[diceroll];
-    return subtype;
+    return randElem(App.settings.subtypes);
 }
 
 //TODO: remove reliance on radius
@@ -301,7 +312,7 @@ App.generate = function (i) {
     // Generates a question and represents it at the given index
     let question;
     if (App.settings.options_mode === 'basic') {
-        let difffloat = App.settings.mindiff + i * (App.settings.maxdiff - App.settings.mindiff + 1)/App.settings.nquestions 
+        let difffloat = App.settings.mindiff + i * (App.settings.maxdiff - App.settings.mindiff + 1)/App.settings.n_questions 
         let diff = Math.floor(difffloat); 
         console.log("difficulty for " + i + " : " + difffloat + " -> " + diff);
         question = App.chooseQDifficulty(diff);
@@ -323,7 +334,7 @@ App.generate = function (i) {
 App.generateAll = function () {
     App.clear();
     // Create containers for questions and generate a question in each container
-    let n = document.getElementById("n-questions").value;
+    let n = App.settings.n_questions;
     for (let i=0; i<n; i++) {
         // Make DOM elements
         let container = document.createElement("div");
@@ -370,8 +381,8 @@ App.zoom = function (sign) {
     });
 }
 
-/* * * Data on generated questions * * */
-/********************************************************************************************************
+/* * * Data on generated questions * * *
+ *******************************************************************************************************
  * Example:
  * App.questions =
  *  [
@@ -379,10 +390,11 @@ App.zoom = function (sign) {
  *      {type: "aosl", subtype: "algebra", viewobject: [AoslViewAlgebraic object], container: [Node]}
  *  ]
  *
- ********************************************************************************************************/
+ */  App.questions = [];
+/*
+/********************************************************************************************************/
 
-App.questions = []; // An array of Aoslviews? Or maybe a bit more.
-
+/* * * Settings related * * */
 App.defaults = {
     canvas_width: 250,
     canvas_height: 250,
@@ -395,21 +407,108 @@ App.settings = {
     canvas_width: 250,
     canvas_height: 250,
     zoom: 1,
-    types: [],
-    subtypes: [],
+    types: new Set(['aosl']),
+    subtypes: new Set(['simple']),
     min_n: 2,
     max_n: 4,
-    options_mode: "basic"
+    options_mode: "basic",
+    mindiff: 1,
+    maxdiff: 5,
+    n_questions: 8,
+    simple: {
+        min_n:2,
+        max_n:4
+    },
+    repeated: {
+        min_n: 2,
+        max_n: 4
+    },
+    algebra: {
+        types: new Set(['add', 'mult', 'mixed']),
+        ensure_x: true,
+        constants: true,
+        min_coeff: 1,
+        max_coeff: 4,
+        min_n: 2,
+        max_n: 4
+    },
+    worded: {
+        min_n: 2,
+        max_n: 4,
+        min_addend: -90,
+        max_addend: 90,
+        min_multiplier: 1,
+        max_multiplier: 5,
+        types: new Set(["add", "multiply", "percent", "ratio"])
+    }
 }
-   
-App.getSettings = function() {
-    // update form elements on page with settings object
-    App.settings.types = Array.from(document.querySelectorAll(".type:checked")).map(x=>x.id);
-    App.settings.subtypes = Array.from(document.querySelectorAll(".subtype:checked")).map(x=>x.id);
-    App.settings.mindiff = parseInt(document.getElementById("mindiff").value);
-    App.settings.maxdiff = parseInt(document.getElementById("maxdiff").value);
-    App.settings.nquestions = parseInt(document.getElementById("n-questions").value);
-    console.log("settings updated:");
-    console.log(App.settings);
-    return App.settings;
+
+App.settings.fromPage = function() {
+    const formOptions = document.getElementsByClassName("option");
+    for (let i = 0, n=formOptions.length; i<n; ++i) {
+        const settingElem = formOptions[i];
+        const value = Number(settingElem.value) || settingElem.value;
+        let setting = settingElem.dataset.setting;
+        //TODO: Make it work with radio buttons
+        if (setting.endsWith("[]")) { //modify a set from checkboxes
+            setting = setting.slice(0,-2);
+            if (!propByString(this,setting)) propByString(this,setting, new Set()); 
+            // TODO: convert array to Set if needed
+            if (settingElem.checked) propByString(this,setting).add(value);
+            else propByString(this,setting).delete(value);
+        } else if (settingElem.type === "checkbox") {
+            propByString(this,setting,settingElem.checked?true:false)
+        } else if (settingElem.checked || (settingElem.type !== "radio" && settingElem.type !== "checkbox")) {
+            propByString(this,setting,value);
+        }
+    }
+console.log("settings updated:");
+console.log(this);
 }
+
+App.settings.toPage = function() {
+    const formOptions = document.getElementsByClassName("option");
+    for (let i = 0, n=formOptions.length; i<n; ++i) {
+        const settingElem = formOptions[i];
+        const value = settingElem.value;
+        let setting = settingElem.dataset.setting;
+        if (setting.endsWith("[]")) { //modify a set from checkboxes
+            setting = setting.slice(0,-2);
+            // TODO: convert array to Set if needed
+            if (propByString(this,setting).has(value)) settingElem.checked = true;
+            else settingElem.checked = false;
+        } else if (settingElem.type === "radio") {
+            if (propByString(this,setting) === value) settingElem.checked = true;
+        } else if (settingElem.type === "checkbox") {
+            settingElem.checked = propByString(this,setting)? true : false;
+        } else {
+            settingElem.value = propByString(this,setting);
+        }
+    }
+}
+
+App.modalOpen = function (id) {
+    const modal = document.getElementById(id) || document.getElementById("default-modal");
+    if (modal.classList.contains("modal")) {
+        const overlay = document.getElementById("modal-overlay");
+        overlay.appendChild(modal);
+        overlay.classList.remove("hidden");
+    }
+}
+
+App.modalClose = function () {
+    const overlay = document.getElementById("modal-overlay");
+    const children = overlay.getElementsByClassName("modal");
+    while (children.length > 0) {
+        document.body.appendChild(children[0]);
+    }
+    overlay.classList.add("hidden");
+}
+
+App.toggleHidden = function (idlist) {
+    for (let i = 0; i<idlist.length; i++) {
+        document.getElementById(idlist[i]).classList.toggle("hidden");
+    }
+}
+
+/* * * * * * * * * * * * * * * * * * * * */

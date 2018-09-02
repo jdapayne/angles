@@ -24,8 +24,10 @@ export function randMultBetween(min,max,n) {
 }
 
 export function randElem(array,dist) {
-    let i = randBetween(0,array.length - 1,dist);
-    return array[i];
+    if (!dist) dist = Math.random;
+    const n = array.length || array.size;
+    let i = randBetween(0,n-1,dist);
+    return [...array][i];
 }
 
 /* Maths */
@@ -129,3 +131,22 @@ export function dashedLine(ctx,x1,y1,x2,y2) {
     ctx.moveTo(x2,y2);
 }
 
+/* Object property access by string */
+export function propByString (o, s, x) {
+    /* E.g. byString(myObj,"foo.bar") -> myObj.foo.bar
+     * byString(myObj,"foo.bar","baz") -> myObj.foo.bar = "baz"
+     */
+    s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+    s = s.replace(/^\./, '');           // strip a leading dot
+    var a = s.split('.');
+    for (var i = 0, n = a.length - 1; i < n; ++i) {
+        var k = a[i];
+        if (k in o) {
+            o = o[k];
+        } else {
+            return;
+        }
+    }
+    if (x === undefined) return o[a[n]];
+    else o[a[n]] = x;
+}

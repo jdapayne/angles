@@ -10,6 +10,7 @@ export default class TriangleWorded extends AnglesFormingWorded {
     }
 
     static random(options) {
+        if (!options) options = {};
         options.n = 3;
         if (!options.min_angle) options.min_angle = 25;
         let triangle = super.random(180,options);

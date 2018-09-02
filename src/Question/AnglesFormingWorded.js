@@ -1,6 +1,6 @@
 import AnglesFormingAlgebraic from 'Question/AnglesFormingAlgebraic';
 import LinExpr from 'Utilities/LinExpr';
-import {randBetween, randMultBetween} from 'Utilities/Utilities';
+import {randBetween, randMultBetween, randElem} from 'Utilities/Utilities';
 
 export default class AnglesFormingWorded extends AnglesFormingAlgebraic{
     // No idea if this is the best approach...
@@ -27,7 +27,8 @@ export default class AnglesFormingWorded extends AnglesFormingAlgebraic{
         }
 
         const defaults = {
-            n: 2,
+            min_n: 2,
+            max_n: 2,
             min_angle: 10,
             min_addend: -90,
             max_addend: 90,
@@ -37,9 +38,10 @@ export default class AnglesFormingWorded extends AnglesFormingAlgebraic{
         }
 
         const settings = Object.assign({},defaults,options);
-        const n = settings.n;
+        const n = settings.n?
+            settings.n :
+            randBetween(settings.min_n, settings.max_n);
         
-        // For now: just do it with two.
         let expressions = [new LinExpr(1,0)];
         let instructions = [];
 
@@ -55,8 +57,8 @@ export default class AnglesFormingWorded extends AnglesFormingAlgebraic{
                 success = true;
             }
             for (let i=1; i<n; i++) {
-                const diceroll = randBetween(0,settings.types.length-1);
-                switch(settings.types[diceroll]) {
+                const type = randElem(settings.types);
+                switch(type) {
                     case "add": {
                         const addend = randBetween(settings.min_addend,settings.max_addend);
                         expressions.push(expressions[i-1].add(addend));
